@@ -1,0 +1,39 @@
+# Core Dependencies
+python-dotenv>=1.0.0
+requests>=2.31.0
+
+# Token Management
+tiktoken>=0.5.0
+
+# Database
+# sqlite3 is included with Python
+
+# Rich Terminal (optional but recommended)
+rich>=13.7.0
+
+# ChromaDB for RAG
+chromadb>=0.4.22
+sentence-transformers>=2.3.1
+
+# File Processing
+pandas>=2.1.0
+openpyxl>=3.1.2
+PyYAML>=6.0.1
+python-multipart>=0.0.6
+
+# PDF Processing (optional)
+PyPDF2>=3.0.0
+
+# Code Analysis (optional)
+pylint>=3.0.0
+
+# Testing
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+pytest-cov>=4.1.0
+
+# System Monitoring
+psutil>=5.9.0
+
+# Readline (Windows)
+pyreadline3>=3.4.1; sys_platform == 'win32'

@@ -1,0 +1,145 @@
+{
+    "version": "1.0",
+    "description": "MCP Server Configuration for Larry Agent",
+    "defaults": {
+        "client_session_timeout_seconds": 60,
+        "retry_attempts": 3
+    },
+    "servers": [
+        {
+            "name": "fxjefe-local",
+            "transport": "stdio",
+            "command": "python",
+            "args": ["mcp/fxjefe-local-mcp/fxjefe_local_mcp_server.py"],
+            "params": {},
+            "enabled": false,
+            "description": "DISABLED: server script fxjefe_local_mcp_server.py was deleted (only README remains); re-enable once it is restored. FXJEFE Local Security & Productivity Suite - security scanning, PDF tools, browser automation, safe file ops (bridged via mcp_client.FXJEFETools)"
+        },
+        {
+            "name": "filesystem",
+            "transport": "native",
+            "module": "mcp_servers.filesystem_server",
+            "class": "FilesystemServer",
+            "params": {
+                "allowed_paths": ["C:\\Users\\LocalLarry\\Documents\\LocalLarry\\GITHUB"],
+                "allowed_extensions": [".py", ".txt", ".md", ".json", ".yaml", ".yml", ".toml", ".csv", ".js", ".ts", ".html", ".css"]
+            },
+            "enabled": true,
+            "description": "Native file system operations - read, write, list, search files"
+        },
+        {
+            "name": "time",
+            "transport": "native",
+            "module": "mcp_servers.time_server",
+            "class": "TimeServer",
+            "params": {
+                "default_timezone": "UTC"
+            },
+            "enabled": true,
+            "description": "Date and time utilities - current time, timezone conversion, scheduling"
+        },
+        {
+            "name": "memory",
+            "transport": "native",
+            "module": "mcp_servers.memory_server",
+            "class": "MemoryServer",
+            "params": {
+                "storage_path": "./memory.json",
+                "max_entities": 10000
+            },
+            "enabled": true,
+            "description": "Knowledge graph memory - entities, relations, observations"
+        },
+        {
+            "name": "sqlite",
+            "transport": "native",
+            "module": "mcp_servers.sqlite_server",
+            "class": "SQLiteServer",
+            "params": {
+                "db_path": "./data/unified_context.db",
+                "read_only": false
+            },
+            "enabled": true,
+            "description": "SQLite database operations - queries, schema management"
+        },
+        {
+            "name": "brave-search",
+            "transport": "native",
+            "module": "mcp_servers.brave_search_server",
+            "class": "BraveSearchServer",
+            "params": {
+                "api_key_env": "BRAVE_API_KEY"
+            },
+            "enabled": true,
+            "description": "Web search via Brave Search API - requires BRAVE_API_KEY in .env"
+        },
+        {
+            "name": "playwright",
+            "transport": "native",
+            "module": "mcp_servers.playwright_server",
+            "class": "PlaywrightServer",
+            "params": {
+                "headless": true,
+                "browser": "chromium",
+                "timeout": 30000
+            },
+            "enabled": true,
+            "description": "Browser automation - screenshots, navigation, form filling"
+        },
+        {
+            "name": "context7",
+            "transport": "native",
+            "module": "mcp_servers.context7_server",
+            "class": "Context7Server",
+            "params": {
+                "cache_dir": "./context7_cache"
+            },
+            "enabled": true,
+            "description": "Library documentation lookup and code context"
+        },
+        {
+            "name": "n8n",
+            "transport": "native",
+            "module": "mcp_servers.n8n_server",
+            "class": "N8NServer",
+            "params": {
+                "base_url": "http://localhost:5678",
+                "api_key_env": "N8N_API_KEY"
+            },
+            "enabled": true,
+            "description": "n8n workflow automation - requires n8n running on :5678"
+        },
+        {
+            "name": "podman",
+            "transport": "native",
+            "module": "mcp_servers.podman_server",
+            "class": "PodmanServer",
+            "params": {
+                "socket_path": null
+            },
+            "enabled": true,
+            "description": "Podman container management - requires podman installed"
+        },
+        {
+            "name": "github",
+            "transport": "http",
+            "params": {
+                "base_url": "https://api.github.com",
+                "api_key_env": "GITHUB_TOKEN"
+            },
+            "enabled": true,
+            "description": "GitHub API operations - repos, issues, PRs - requires GITHUB_TOKEN"
+        },
+        {
+            "name": "desktop-commander",
+            "transport": "native",
+            "module": "mcp_servers.desktop_commander_server",
+            "class": "DesktopCommanderServer",
+            "params": {
+                "allowed_apps": ["notepad", "calculator", "explorer"]
+            },
+            "enabled": true,
+            "description": "Desktop automation - window management"
+        }
+    ]
+}

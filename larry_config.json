@@ -20,28 +20,14 @@
     },
     "ollama": {
         "host": "http://localhost:11434",
-        "_default_model_comment": "dolphin3:8b (~4.9GB, Dolphin 3 on Llama-3.1-8B) — uncensored, strong tool/function calling, fits fully on the RTX 4060 8GB with room for KV cache. keep_alive 30m holds it warm in VRAM. Heavy models remain available via the profile tiers below.",
-        "default_model": "dolphin3:8b",
+        "default_model": "LocalLarry-15b:latest",
         "embedding_model": "nomic-embed-text:latest",
-        "timeout": null,
+        "timeout": 1800,
         "num_parallel": 1,
-        "_max_loaded_models_comment": "How many models Ollama keeps resident at once. 3+ lets the chat LLM, the embedding model (nomic-embed-text), and a chunking/reranking model stay warm together so RAG does not evict the chat model and reload on every request. Small embed models (~0.3-0.7GB) coexist with one big chat model on 8GB VRAM; Ollama spills overflow to CPU/DDR5. Raise if you add more concurrent models.",
-        "max_loaded_models": 3,
-        "_mcp_host_model_comment": "Model that drives the agentic MCP tool loop (/mcprun, the background MCP host). qwen3:8b is fast + fully GPU-offloaded with verified tool calling. Set to 'LocalLarry-Agentic' for the heavier uncensored 35B (slower on 8GB). Env LARRY_MCP_HOST_MODEL overrides this.",
-        "mcp_host_model": "qwen3:8b",
         "keep_alive": "30m",
         "num_gpu": 0,
-        "cli_default_model": "dolphin3:8b",
-        "telegram_default_model": "dolphin3:8b"
-    },
-    "fullstack": {
-        "_comment": "Controls launchers/start_fullstack.py (the 'Larry Full Stack' dashboard service + system launcher).",
-        "install_deps": true,
-        "start_ollama": true,
-        "start_telegram": true,
-        "fast_tool_model": "dolphin3:8b",
-        "fast_tool_modelfile": "",
-        "_fast_tool_modelfile_comment": "Leave empty to `ollama pull` fast_tool_model. Set to e.g. 'ollama_modelfiles/Modelfile.Larry-Fast-9b' to `ollama create` a custom model instead."
+        "cli_default_model": "LocalLarry-15b:latest",
+        "telegram_default_model": "LocalLarry-Fast:latest"
     },
     "profiles": {
         "default": "ACCURACY",
@@ -52,34 +38,31 @@
             "ULTRA_CONTEXT"
         ],
         "hardware_mode": "CPU_DDR5_64GB",
-        "flagship_model": "llama3.3:70b",
-        "coding_model": "qwen3-coder:30b",
-        "fast_model": "ministral-3:latest",
-        "ultra_context_model": "qwen2.5-128k:latest",
+        "flagship_model": "LocalLarry-15b:latest",
+        "coding_model": "qwen3-coder:30b-a3b-q4_K_M",
+        "fast_model": "LocalLarry-Fast:latest",
+        "ultra_context_model": "llama3.1:8b",
         "tier1_models": [
-            "llama3.3:70b",
-            "qwen2.5:32b-instruct",
-            "glm-4.7-flash:latest",
-            "qwen3-coder:30b"
+            "LocalLarry-15b:latest",
+            "qwen3-coder:30b-a3b-q4_K_M",
+            "qwen3.6:35b",
+            "huihui_ai/Qwen3.6-abliterated:27b"
         ],
         "tier2_models": [
             "dolphin-mixtral:8x7b",
-            "devstral-small-2:24b",
+            "gemma4:26b",
             "qwen2.5:14b-instruct-q4_K_M",
-            "ministral-3:14b",
-            "qwen2.5-128k:latest"
+            "phi4:14b",
+            "dolphincoder:15b"
         ],
         "tier3_fast_models": [
-            "ministral-3:latest",
-            "mistral:latest",
-            "qwen3:8b-q5_K_M",
+            "LocalLarry-Fast:latest",
+            "LocalLarry-Uncensored:latest",
+            "dolphin3:8b",
             "qwen3:8b"
         ],
         "tier4_tiny_models": [
-            "llama3.2:latest",
-            "llama3.2-ctx:latest",
-            "lfm2.5-thinking:1.2b",
-            "granite4:1b"
+            "llama3.2:3b"
         ]
     },
     "features": {
@@ -91,7 +74,7 @@
     },
     "rag": {
         "backend": "chroma",
-        "chroma_path": "./chroma_db",
+        "chroma_path": "./memory/chroma_db",
         "embedding_model": "nomic-embed-text:latest",
         "chunk_size": 800,
         "chunk_overlap": 250,

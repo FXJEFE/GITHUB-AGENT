@@ -1,0 +1,69 @@
+{
+    "agent_name": "LARRY G-FORCE",
+    "version": "3.0.0",
+    "_comment": "Canonical config for the restructured agent (main.py, subagents/, tools/, utils/). Legacy modules still read larry_config.json.",
+    "ollama": {
+        "host": "http://localhost:11434",
+        "num_parallel": 1,
+        "keep_alive": "30m",
+        "timeout": 1800
+    },
+    "models": {
+        "_comment": "Roles map to custom tuned models; fallbacks are stock installed models used when the custom one is not created yet.",
+        "main": "LocalLarry-15b:latest",
+        "fast": "LocalLarry-Fast:latest",
+        "uncensored": "LocalLarry-Uncensored:latest",
+        "embedding": "nomic-embed-text:latest",
+        "telegram_default": "LocalLarry-15b:latest",
+        "fallbacks": {
+            "LocalLarry-15b:latest": "qwen3-coder:30b-a3b-q4_K_M",
+            "LocalLarry-Fast:latest": "qwen3:8b",
+            "LocalLarry-Uncensored:latest": "dolphin3:8b"
+        }
+    },
+    "subagents": {
+        "executor":   { "model": "main",       "max_turns": 8 },
+        "editor":     { "model": "main",       "max_turns": 6 },
+        "searcher":   { "model": "fast",       "max_turns": 4 },
+        "transcribe": { "model": "fast",       "max_turns": 4 },
+        "debugger":   { "model": "main",       "max_turns": 10 }
+    },
+    "paths": {
+        "memory_dir": "memory",
+        "chroma_db": "memory/chroma_db",
+        "tasks_db": "memory/tasks.db",
+        "skills_db": "memory/skills.db",
+        "sessions_db": "memory/sessions.db",
+        "logs_dir": "logs",
+        "sandbox_dir": "sandbox"
+    },
+    "orchestrator": {
+        "model": "main",
+        "max_steps": 6,
+        "use_memory": true
+    },
+    "api": {
+        "_comment": "host/port for the HTTP API. token: null = use env LARRY_API_TOKEN, else auto-generate and print at startup. Set a string here to pin one.",
+        "host": "0.0.0.0",
+        "port": 7333,
+        "token": null
+    },
+    "model_management": {
+        "_comment": "keep_loaded models are never unloaded by the orchestrator (prefer keeping the small fast model + embedder resident; the big main model gets evicted first).",
+        "keep_loaded": ["LocalLarry-Fast", "nomic-embed-text"],
+        "vram_unload_threshold_percent": 78.0
+    },
+    "terminal": {
+        "timeout": 120,
+        "working_dir": null
+    },
+    "features": {
+        "telegram_enabled": true,
+        "rag_enabled": true,
+        "voice_enabled": false
+    },
+    "logging": {
+        "level": "INFO",
+        "file": "logs/larry.log"
+    }
+}

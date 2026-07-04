@@ -1,0 +1,83 @@
+# ============================================================================
+# Larry AI Agent - Complete Requirements
+# ============================================================================
+# Install: pip install -r requirements.txt
+# For conda: See environment.yml
+# ============================================================================
+
+# === Core Framework ===
+fastapi>=0.109.0
+uvicorn[standard]>=0.27.0
+pydantic>=2.5.0,<3.0.0
+
+# === Ollama Client ===
+ollama>=0.1.0
+
+# === Vector Store & RAG ===
+chromadb>=1.0.0
+sentence-transformers>=2.2.0
+
+# === LangChain Ecosystem ===
+langchain>=0.1.0
+langchain-community>=0.0.10
+langchain-core>=0.1.0
+
+# === HTTP & Async ===
+requests>=2.31.0
+aiohttp>=3.9.0
+httpx>=0.26.0
+anyio>=4.2.0
+
+# === File Handling & Data ===
+pandas>=2.1.0
+numpy>=1.26.0
+pyyaml>=6.0.0
+python-dotenv>=1.0.0
+orjson>=3.9.0
+ujson>=5.9.0
+openpyxl>=3.1.2
+
+# === Web Scraping ===
+beautifulsoup4>=4.12.0
+lxml>=5.0.0
+html2text>=2024.2.26
+
+# === Browser Automation ===
+playwright>=1.40.0
+
+# === YouTube ===
+youtube-transcript-api>=0.6.0
+yt-dlp>=2024.1.0
+
+# === Database ===
+sqlalchemy>=2.0.0
+
+# === Scheduler (Robin tool-calling background jobs) ===
+apscheduler>=3.10.0
+
+# === Timezones (MCP time_server) ===
+pytz>=2024.1
+
+# === Token Management ===
+tiktoken>=0.5.0
+
+# === CLI & UI ===
+rich>=13.7.0
+typer>=0.9.0
+
+# === Logging ===
+structlog>=23.2.0
+
+# === System Monitoring ===
+psutil>=5.9.0
+
+# === PDF Processing (optional) ===
+PyPDF2>=3.0.0
+
+# === Windows-specific ===
+pyreadline3>=3.4.1; sys_platform == 'win32'
+
+# === Testing ===
+pytest>=7.4.0
+pytest-asyncio>=0.23.0
+pytest-cov>=4.1.0
