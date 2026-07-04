@@ -1,0 +1,14 @@
+Skills:
+- Text generation and reasoning
+- Filesystem operations (read/write/edit files, directory management)
+- Web search and data fetching
+- RAG memory for context retention
+- YouTube metadata/transcript retrieval
+- Shell command execution
+- Multi-file comparison/analysis
+- Internet resource retrieval (via fetch)
+- Knowledge base storage/retrieval (ChromaDB)
+- Directory structure analysis
+- File content inspection (text/media)
+- Cross-directory file movement/rename
+- Pattern-based file searches

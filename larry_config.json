@@ -1,0 +1,118 @@
+{
+    "agent_name": "LARRY G-FORCE",
+    "version": "2.0.0",
+    "_working_directory_comment": "Leave null for portable mode — larry_paths.BASE_DIR is used (the dir containing agent_v2.py). Set to an absolute path only to override.",
+    "working_directory": null,
+    "hardware": {
+        "mode": "GPU",
+        "ram_gb": 64,
+        "ram_type": "DDR5",
+        "gpu": "RTX 4060 8GB",
+        "gpu_used_for": "LLM inference + reranker (CUDA_VISIBLE_DEVICES=0)",
+        "cuda_visible_devices": "0",
+        "gpu_power_limit_w": 100,
+        "gpu_persistence_mode": true
+    },
+    "gpu_gaming": {
+        "_comment": "When gaming_mode is true, model_router clamps Ollama num_gpu (GPU transformer-layer offload) to gaming_num_gpu so the RTX 4060's VRAM + compute stay free for games; remaining layers run on the 64GB DDR5 via CPU. gaming_num_gpu=16 is ~half of dolphin3:8b's 32 layers (~50% GPU, ~2.5-3GB VRAM). Lower = more game headroom but slower tokens. Toggle live with no restart: set gaming_mode false for full-speed inference.",
+        "gaming_mode": true,
+        "gaming_num_gpu": 16
+    },
+    "ollama": {
+        "host": "http://localhost:11434",
+        "_default_model_comment": "dolphin3:8b (~4.9GB, Dolphin 3 on Llama-3.1-8B) — uncensored, strong tool/function calling, fits fully on the RTX 4060 8GB with room for KV cache. keep_alive 30m holds it warm in VRAM. Heavy models remain available via the profile tiers below.",
+        "default_model": "dolphin3:8b",
+        "embedding_model": "nomic-embed-text:latest",
+        "timeout": null,
+        "num_parallel": 1,
+        "_max_loaded_models_comment": "How many models Ollama keeps resident at once. 3+ lets the chat LLM, the embedding model (nomic-embed-text), and a chunking/reranking model stay warm together so RAG does not evict the chat model and reload on every request. Small embed models (~0.3-0.7GB) coexist with one big chat model on 8GB VRAM; Ollama spills overflow to CPU/DDR5. Raise if you add more concurrent models.",
+        "max_loaded_models": 3,
+        "_mcp_host_model_comment": "Model that drives the agentic MCP tool loop (/mcprun, the background MCP host). qwen3:8b is fast + fully GPU-offloaded with verified tool calling. Set to 'LocalLarry-Agentic' for the heavier uncensored 35B (slower on 8GB). Env LARRY_MCP_HOST_MODEL overrides this.",
+        "mcp_host_model": "qwen3:8b",
+        "keep_alive": "30m",
+        "num_gpu": 0,
+        "cli_default_model": "dolphin3:8b",
+        "telegram_default_model": "dolphin3:8b"
+    },
+    "fullstack": {
+        "_comment": "Controls launchers/start_fullstack.py (the 'Larry Full Stack' dashboard service + system launcher).",
+        "install_deps": true,
+        "start_ollama": true,
+        "start_telegram": true,
+        "fast_tool_model": "dolphin3:8b",
+        "fast_tool_modelfile": "",
+        "_fast_tool_modelfile_comment": "Leave empty to `ollama pull` fast_tool_model. Set to e.g. 'ollama_modelfiles/Modelfile.Larry-Fast-9b' to `ollama create` a custom model instead."
+    },
+    "profiles": {
+        "default": "ACCURACY",
+        "available": [
+            "SPEED",
+            "BALANCED",
+            "ACCURACY",
+            "ULTRA_CONTEXT"
+        ],
+        "hardware_mode": "CPU_DDR5_64GB",
+        "flagship_model": "llama3.3:70b",
+        "coding_model": "qwen3-coder:30b",
+        "fast_model": "ministral-3:latest",
+        "ultra_context_model": "qwen2.5-128k:latest",
+        "tier1_models": [
+            "llama3.3:70b",
+            "qwen2.5:32b-instruct",
+            "glm-4.7-flash:latest",
+            "qwen3-coder:30b"
+        ],
+        "tier2_models": [
+            "dolphin-mixtral:8x7b",
+            "devstral-small-2:24b",
+            "qwen2.5:14b-instruct-q4_K_M",
+            "ministral-3:14b",
+            "qwen2.5-128k:latest"
+        ],
+        "tier3_fast_models": [
+            "ministral-3:latest",
+            "mistral:latest",
+            "qwen3:8b-q5_K_M",
+            "qwen3:8b"
+        ],
+        "tier4_tiny_models": [
+            "llama3.2:latest",
+            "llama3.2-ctx:latest",
+            "lfm2.5-thinking:1.2b",
+            "granite4:1b"
+        ]
+    },
+    "features": {
+        "voice_enabled": false,
+        "mcp_enabled": true,
+        "rag_enabled": true,
+        "telegram_enabled": true,
+        "web_ui_enabled": false
+    },
+    "rag": {
+        "backend": "chroma",
+        "chroma_path": "./chroma_db",
+        "embedding_model": "nomic-embed-text:latest",
+        "chunk_size": 800,
+        "chunk_overlap": 250,
+        "reranker_model": "BAAI/bge-reranker-v2-m3",
+        "reranker_device": "cuda:0"
+    },
+    "database": {
+        "sqlite_path": "./data/unified_context.db",
+        "memory_path": "./memory.json"
+    },
+    "mcp": {
+        "config_path": "./mcp.json",
+        "timeout": 60
+    },
+    "logging": {
+        "level": "INFO",
+        "file": "./logs/larry.log"
+    },
+    "ui": {
+        "theme": "gold1",
+        "show_thinking": true,
+        "show_tool_calls": true
+    }
+}

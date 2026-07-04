@@ -1,0 +1,48 @@
+Self-creation test results
+
+  ┌─────────────────────────────────────────────────────────────────────────────────────────────┬─────────────────────────────┬────────────────────────────────┐
+  │                                            Test                                             │           Result            │    Landed at (correct path)    │
+  ├─────────────────────────────────────────────────────────────────────────────────────────────┼─────────────────────────────┼────────────────────────────────┤
+  │ Task self-create (add_task)                                                                 │ ✅  id 14, read back from DB │ src\memory\tasks.db            │
+  ├─────────────────────────────────────────────────────────────────────────────────────────────┼─────────────────────────────┼────────────────────────────────┤
+  │ Skill self-create (create_skill, LLM-generated → validated → written → ran 'larry'→'yrral') │ ✅                           │ src\skills\path_verify_demo.py │
+  └─────────────────────────────────────────────────────────────────────────────────────────────┴─────────────────────────────┴────────────────────────────────┘
+
+  📁 Canonical paths (verify these yourself)
+
+  SKILLS_DIR :  C:\Users\LocalLarry\Documents\LocalLarry\GITHUB\src\skills
+  tasks.db   :  C:\Users\LocalLarry\Documents\LocalLarry\GITHUB\src\memory\tasks.db
+  skills.db  :  C:\Users\LocalLarry\Documents\LocalLarry\GITHUB\src\memory\skills.db
+  chroma_db  :  C:\Users\LocalLarry\Documents\LocalLarry\GITHUB\src\memory\chroma_db
+
+  All on the canonical src/ tree — no repo-root stragglers, exactly per your "src/ is canonical" rule.
+
+  🔎 Commands to verify yourself
+
+  # the self-authored skill file
+  type C:\Users\LocalLarry\Documents\LocalLarry\GITHUB\src\skills\path_verify_demo.py
+
+  # the self-created task row
+  cd C:\Users\LocalLarry\Documents\LocalLarry\GITHUB\src
+  python -c "import sqlite3;c=sqlite3.connect('memory/tasks.db');print([dict(zip(['id','title','status'],r)) for r in c.execute('select id,title,status from tasks order by id desc limit 3')])"
+
+  # round-trip: run the self-created skill
+  python -c "import sys;sys.path.insert(0,'.');from skills import run_skill;print(run_skill('path_verify_demo',text='hello'))"
+
+  # the homedir files from the earlier test
+  type C:\Users\LocalLarry\hello_system_prompt.txt
+  type C:\Users\LocalLarry\hello_system_prompt.md
+
+  🧹  Two cleanup items (your call)
+
+  These test artifacts are still live — I left them so you can verify, but tell me to remove any:
+  1. src\skills\path_verify_demo.py — a throwaway test skill; it'll be discovered every boot until removed.
+  2. task id 14 (pending) in tasks.db — harmless, but it's a fake task.
+  3. Sandbox still widened to your home dir (servers.json) — security-relevant; backup at servers.json.bak-20260624_042308.
+
+  Want me to clean up the test skill + task and/or revert the sandbox to GITHUB-only? Or leave everything as-is?
+
+✻ Cogitated for 13m 30s
+
+● How is Claude doing this session? (optional)
+  1: Bad    2: Fine   3: Good   0: Dismiss
