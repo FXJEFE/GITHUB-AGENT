@@ -1,9 +1,8 @@
 # Tiny Larry Agent Launcher (PowerShell)
 # Canonical: system Python311 (NOT the repo .venv) running the src\ tree.
-# Lives in launchers\ — works from the repo root one level up.
 
 $ErrorActionPreference = "Continue"
-Set-Location (Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Definition))
+Set-Location (Split-Path -Parent $MyInvocation.MyCommand.Definition)
 
 # 1. Canonical interpreter
 $python = "C:\Users\LocalLarry\AppData\Local\Programs\Python\Python311\python.exe"

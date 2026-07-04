@@ -1,0 +1,34 @@
+{
+  "_comment": "LARRY G-FORCE MCP server registry. Copy to mcp/mcp.json and edit. Each entry is a standard stdio server spec (command + args). A server whose command is 'docker' runs inside Docker Desktop. Set 'disabled': true to keep an entry but not load it. 'url' entries (SSE/HTTP) are recorded but need the official mcp SDK to dial.",
+
+  "mcpServers": {
+
+    "fxjefe-local": {
+      "_note": "Your own local FXJEFE MCP server. Path is project-relative.",
+      "command": "python",
+      "args": ["mcp/fxjefe-local-mcp/fxjefe_local_mcp_server.py"]
+    },
+
+    "filesystem": {
+      "_note": "Official filesystem server. Replace the path with a real allowed root.",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "C:\\Users\\LocalLarry\\Documents\\LocalLarry"],
+      "disabled": true
+    },
+
+    "git": {
+      "_note": "Official git server (read repo state). Point --repository at a repo.",
+      "command": "uvx",
+      "args": ["mcp-server-git", "--repository", "C:\\Users\\LocalLarry\\Documents\\LocalLarry\\GITHUB"],
+      "disabled": true
+    },
+
+    "dockerized-example": {
+      "_note": "Any MCP server shipped as a container. -i keeps stdin open for stdio JSON-RPC; --rm cleans up. This is how you 'stream MCP tools via Docker Desktop'.",
+      "command": "docker",
+      "args": ["run", "-i", "--rm", "ghcr.io/example/some-mcp-server:latest"],
+      "disabled": true
+    }
+
+  }
+}

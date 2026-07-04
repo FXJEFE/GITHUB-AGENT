@@ -1,0 +1,187 @@
+# =============================================================================
+# FXJEFE Local Larry / Larry G-Force v2.1 - .gitignore
+# =============================================================================
+
+# --- Secrets & Credentials ---
+.env
+.env.*
+*.key
+*.pem
+*.crt
+user_config.json
+larry_config.local.json
+secrets/
+*.token
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+.conda/
+
+# --- IDE / Editor ---
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.code-workspace
+
+# --- Logs & Runtime Data ---
+logs/
+*.log
+*.log.*
+larry_logs/
+data/session_summaries.jsonl
+*.pid
+
+# --- Databases & Vector Stores ---
+*.db
+*.db-shm
+*.db-wal
+*.db-journal
+*.sqlite
+*.sqlite3
+chroma_db/
+memory.json
+openclaws_memory.json
+context7_cache/
+
+# --- Sandbox & Temporary Work ---
+sandbox/
+exports/
+imports/
+screenshots/
+voice_cache/
+tmp/
+temp/
+
+# --- Build / Locked Distribution ---
+dist/
+build/
+*.exe
+*.spec
+*.pyd
+PyArmor/
+obfuscated/
+
+# --- Node / Frontend (if any) ---
+node_modules/
+package-lock.json
+
+# --- OS Generated ---
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Large Model Files (never commit models) ---
+*.gguf
+*.bin
+*.safetensors
+ollama_models/
+
+# --- Backup & Repair Scripts (development only) ---
+scripts/__*.py
+*.bak
+
+# --- Personal / Local Overrides ---
+*.local
+*.local.*
+FXJEFEprofile.jpg   # Keep this out unless you explicitly want to distribute the image
+
+# --- PUBLIC-REPO HARDENING (do not commit any of these) ---
+# Conversation history / agent state (may contain PII, pasted source, secrets)
+Larry_memory.json
+memory.json
+openclaws_memory.json
+Larry_memory*.json
+*_memory.json
+.transcripts/
+agent_state/
+data/conversation_history.json
+
+# Auth + per-machine config (password hashes, tokens)
+db/dashboard_auth.json
+user_config.json
+launchers/.env
+launchers/.env.*
+**/.env
+!**/.env.example
+
+# Branding files that contain personal name / email — sanitised copy is committed;
+# the original-with-PII lives at prompts/welcome_advisory.local.txt (gitignored).
+prompts/welcome_advisory.local.txt
+
+# Stale duplicates of prompt files that linger in src/ but are never loaded
+# (agent_v2.py loads only from prompts/). Keep on disk for safety, don't ship.
+src/LARRY_SYSTEM_PROMPT.md
+src/welcome_advisory.txt
+prompts/LARRY_SYSTEM_PROMPT*(*).md
+prompts/LARRY_SYSTEM_PROMPT (2).md
+
+# build_locked.py output
+obfuscated/
+LarryGForce-Locked/
+_internal/
+*.spec
+
+# Editor / OS extras the prior section missed
+*.swp
+*~
+.DS_Store
+Thumbs.db
+
+# --- Large installers / archives / images (never commit) ---
+*.msi
+*.iso
+*.zip
+*.7z
+*.tar.gz
+
+# --- VM images & disks (never commit) ---
+*.vdi
+*.vmdk
+*.ova
+*.qcow2
+personal_ai_training/kali-linux-2026.1-virtualbox-amd64/
+
+# --- Trained ML models (never commit; join *.gguf/*.bin/*.safetensors above) ---
+*.pkl
+*.onnx
+*.pt
+*.pth
+*.h5
+
+# --- Vendored JDK distribution ---
+java-1.8.0-openjdk-1.8.0.492.b09-1.win.jdk.x86_64/
+
+# --- CLI history (may contain pasted secrets) ---
+.cli_history
+.cli_history*
+**/.cli_history
+
+# --- Personal documents in repo root ---
+S39d51e4ef3e742d39a41e2b9aa255b8aF.pdf
+Sammendrag_NO010800817.pdf
