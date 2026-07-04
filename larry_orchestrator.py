@@ -12,7 +12,7 @@ light and VRAM/CPU stay free until actually needed:
     • set low-VRAM Ollama env (NUM_PARALLEL=1, MAX_LOADED_MODELS=1, keep_alive)
     • boot + hold the kali-linux WSL2 distro (managed `sleep infinity` holder)
     • ensure `ollama serve` is up — WITHOUT preloading any model
-    • start the dashboard (dashboard_hub.py) — the web control plane
+    • start the dashboard (dashboard_hub_v2.py) — the web control plane
     • start the resource governor (risk management: VRAM/CPU/RAM ceilings)
     • open exactly ONE browser tab to the dashboard
 
@@ -81,9 +81,100 @@ LAUNCHERS = _find_launchers()
 # helpers (best interpreter, Windows Job Object, Ollama probes) instead of
 # duplicating them.
 sys.path.insert(0, str(LAUNCHERS))
-from start_fullstack import (  # noqa: E402
-    best_python, _enter_kill_on_close_job, _ollama_up, _ollama_exe, _ollama_host,
-)
+try:
+    from start_fullstack import (  # noqa: E402
+        best_python, _enter_kill_on_close_job, _ollama_up, _ollama_exe, _ollama_host,
+    )
+    HELPERS_SOURCE = "start_fullstack.py"
+except ImportError:
+    # ── standalone fallbacks (FIX: previously a hard ImportError crash) ────
+    # start_fullstack.py not found next to us. Provide minimal, stdlib-only
+    # versions of its helpers so the orchestrator still brings the stack up.
+    # The start_fullstack versions always win when the file is present.
+    import shutil as _shutil
+    import urllib.request as _urlreq
+
+    HELPERS_SOURCE = "LOCAL FALLBACKS (start_fullstack.py NOT found)"
+
+    def best_python() -> str:
+        """Prefer this repo's venv interpreter; else the one running us."""
+        root = LAUNCHERS.parent
+        sub = ("Scripts", "python.exe") if os.name == "nt" else ("bin", "python")
+        for venv in (".venv", "venv", "env"):
+            cand = root / venv / sub[0] / sub[1]
+            if cand.exists():
+                return str(cand)
+        return sys.executable
+
+    def _enter_kill_on_close_job() -> None:
+        """Windows Job Object, kill-on-close. Best effort; no-op elsewhere."""
+        if os.name != "nt":
+            return
+        try:
+            import ctypes
+            from ctypes import wintypes
+            k32 = ctypes.windll.kernel32
+
+            class _BASIC(ctypes.Structure):
+                _fields_ = [("PerProcessUserTimeLimit", wintypes.LARGE_INTEGER),
+                            ("PerJobUserTimeLimit", wintypes.LARGE_INTEGER),
+                            ("LimitFlags", wintypes.DWORD),
+                            ("MinimumWorkingSetSize", ctypes.c_size_t),
+                            ("MaximumWorkingSetSize", ctypes.c_size_t),
+                            ("ActiveProcessLimit", wintypes.DWORD),
+                            ("Affinity", ctypes.c_size_t),
+                            ("PriorityClass", wintypes.DWORD),
+                            ("SchedulingClass", wintypes.DWORD)]
+
+            class _IO(ctypes.Structure):
+                _fields_ = [(n, ctypes.c_ulonglong) for n in
+                            ("ReadOperationCount", "WriteOperationCount",
+                             "OtherOperationCount", "ReadTransferCount",
+                             "WriteTransferCount", "OtherTransferCount")]
+
+            class _EXT(ctypes.Structure):
+                _fields_ = [("BasicLimitInformation", _BASIC),
+                            ("IoInfo", _IO),
+                            ("ProcessMemoryLimit", ctypes.c_size_t),
+                            ("JobMemoryLimit", ctypes.c_size_t),
+                            ("PeakProcessMemoryUsed", ctypes.c_size_t),
+                            ("PeakJobMemoryUsed", ctypes.c_size_t)]
+
+            job = k32.CreateJobObjectW(None, None)
+            if not job:
+                return
+            info = _EXT()
+            info.BasicLimitInformation.LimitFlags = 0x2000  # KILL_ON_JOB_CLOSE
+            k32.SetInformationJobObject(job, 9,  # ExtendedLimitInformation
+                                        ctypes.byref(info), ctypes.sizeof(info))
+            k32.AssignProcessToJobObject(job, k32.GetCurrentProcess())
+        except Exception:
+            pass
+
+    def _ollama_host(cfg: dict) -> str:
+        o = cfg.get("ollama", {}) or {}
+        host = o.get("host") or os.environ.get("OLLAMA_HOST") or "http://127.0.0.1:11434"
+        if not host.startswith("http"):
+            host = "http://" + host
+        return host.rstrip("/")
+
+    def _ollama_up(host: str) -> bool:
+        try:
+            with _urlreq.urlopen(host + "/api/version", timeout=2) as r:
+                return r.status == 200
+        except Exception:
+            return False
+
+    def _ollama_exe():
+        exe = _shutil.which("ollama")
+        if exe:
+            return exe
+        if os.name == "nt":
+            for cand in (Path(os.environ.get("LOCALAPPDATA", "")) / "Programs" / "Ollama" / "ollama.exe",
+                         Path("C:/Program Files/Ollama/ollama.exe")):
+                if cand.exists():
+                    return str(cand)
+        return None
 
 IS_WINDOWS = os.name == "nt"
 CREATE_NO_WINDOW = 0x08000000 if IS_WINDOWS else 0
@@ -240,6 +331,8 @@ def ensure_ollama(cfg: dict) -> None:
     host = _ollama_host(cfg)
     if _ollama_up(host):
         log(f"Ollama already serving at {host}.")
+        log("   (pre-existing server — the OLLAMA_* env set above does NOT "
+            "apply to it; only Windows user env vars do)")
         return
     exe = _ollama_exe()
     if not exe:
@@ -253,7 +346,7 @@ def ensure_ollama(cfg: dict) -> None:
         if _ollama_up(host):
             break
         time.sleep(1)
-    log("Ollama is up." if _ollama_up(host) else "Ollama not ready within 30s.", )
+    log("Ollama is up." if _ollama_up(host) else "Ollama not ready within 30s.")
 
 
 def start_dashboard(cfg: dict, py: str) -> bool:
@@ -262,7 +355,7 @@ def start_dashboard(cfg: dict, py: str) -> bool:
         log(f"Dashboard already on {host}:{port} — not starting another.")
         return False
     if not DASHBOARD.exists():
-        log(f"dashboard_hub.py not found at {DASHBOARD}", "WARN")
+        log(f"{DASHBOARD.name} not found at {DASHBOARD}", "WARN")
         return False
     _spawn("dashboard", [py, str(DASHBOARD), "--no-browser"], ROOT, "dashboard.log")
     for _ in range(40):
@@ -427,6 +520,73 @@ def _signal_handler(signum, frame):
     _stop = True
 
 
+# ── tool-call self-test (one-shot, opt-in) ──────────────────────────────────
+def selftest_tool_calling(cfg: dict, model: str) -> int:
+    """POST /api/chat with a trivial tool schema (per docs.ollama.com →
+    Tool calling) and verify the model returns a STRUCTURED
+    message.tool_calls entry — not prose pretending it called a tool.
+
+    This is the API-layer counterpart of the fabricated-tool-call problem:
+    if this FAILS for a model, that model narrates tool use instead of
+    emitting tool_calls, and the agent must not trust its "results".
+
+    Opt-in via `--selftest-tools MODEL` because it warm-loads the model
+    into VRAM (deliberately NOT part of the low-resource boot path).
+    """
+    import urllib.request
+    host = _ollama_host(cfg)
+    if not _ollama_up(host):
+        log(f"Ollama not reachable at {host} — cannot run tool-call self-test.", "WARN")
+        return 1
+    payload = {
+        "model": model,
+        "messages": [{"role": "user",
+                      "content": "What is the temperature in Oslo? Use the tool."}],
+        "stream": False,
+        "tools": [{
+            "type": "function",
+            "function": {
+                "name": "get_temperature",
+                "description": "Get the current temperature for a city",
+                "parameters": {
+                    "type": "object",
+                    "required": ["city"],
+                    "properties": {
+                        "city": {"type": "string",
+                                 "description": "The name of the city"},
+                    },
+                },
+            },
+        }],
+    }
+    req = urllib.request.Request(
+        host + "/api/chat",
+        data=json.dumps(payload).encode("utf-8"),
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+    log(f"Tool-call self-test: asking '{model}' to call get_temperature "
+        "(this loads the model — may take a while on first run) ...")
+    try:
+        with urllib.request.urlopen(req, timeout=300) as r:
+            data = json.loads(r.read().decode("utf-8"))
+    except Exception as e:
+        log(f"Self-test request failed: {e}", "WARN")
+        return 1
+    msg = data.get("message") or {}
+    calls = msg.get("tool_calls") or []
+    hits = [c for c in calls
+            if (c.get("function") or {}).get("name") == "get_temperature"]
+    if hits:
+        args = (hits[0].get("function") or {}).get("arguments")
+        log(f"PASS — '{model}' emitted a structured tool_call: "
+            f"get_temperature({json.dumps(args, ensure_ascii=False)})")
+        return 0
+    log(f"FAIL — '{model}' returned NO structured tool_calls. "
+        f"content={json.dumps(msg.get('content', ''), ensure_ascii=False)[:300]}", "WARN")
+    return 1
+
+
 # ── status (no side effects) ─────────────────────────────────────────────────
 def print_status(cfg: dict) -> int:
     host, port = dashboard_hostport(cfg)
@@ -462,11 +622,16 @@ def main() -> int:
                         help="Do not launch the interactive agent CLI console.")
     parser.add_argument("--with-api", action="store_true")
     parser.add_argument("--with-docker", action="store_true")
+    parser.add_argument("--selftest-tools", metavar="MODEL",
+                        help="One-shot: verify MODEL emits structured tool_calls "
+                             "via /api/chat (loads the model), then exit.")
     args = parser.parse_args()
 
     cfg = load_config()
     if args.status:
         return print_status(cfg)
+    if args.selftest_tools:
+        return selftest_tool_calling(cfg, args.selftest_tools)
 
     log("╔" + "═" * 56 + "╗")
     log("║  LARRY G-FORCE — MASTER ORCHESTRATOR")
@@ -488,6 +653,7 @@ def main() -> int:
 
     py = best_python()
     log(f"Interpreter: {py}")
+    log(f"Helpers    : {HELPERS_SOURCE}")
 
     # ── Tier 0 — control plane (light) ──────────────────────────────────────
     log("── Tier 0: control plane ──")
